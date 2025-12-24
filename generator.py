@@ -1,15 +1,14 @@
 from random import randint
 
-
 ALLOWED_STEPS = [2, 3, 4, 5, 7, 12, 14]
-last_template = None
 
 
+def get_input_intervals(chord):
+    return chord.get_intervals()
 
 
-def get_input_intervals (chord):
-        return chord.get_intervals()
-
+def get_input_abs_pitches(chord):
+    return [n.absolute_pitch() for n in chord.get_notes()]
 
 
 def decompose(interval):
@@ -33,78 +32,57 @@ def decompose(interval):
     return equivalents
 
 
-
 def find_templates(chord, templates):
-    intervals = chord.get_intervals()
-    step_matches = []  # list of dicts: each dict maps template_name -> list of start indices
 
-    # Track first matched step: template_name -> matched index
-    first_matched_step = {}  # indexes of the first step in X template that matched the first step of the input
+    matched_templates = [] 
 
-    for iv in intervals:
-        equivalents = decompose(iv)
-        match_positions = {}  # template_name -> list of start indices
+    input_intervals = get_input_intervals(chord)
+    
+    input_decomps = []
+    for interval in input_intervals:
+        input_decomps.append(decompose(interval))
 
-        for e in equivalents:
-            e_len = len(e)
 
-            for tmpl in templates:
-                steps = tmpl["steps"]
-                name = tmpl["name"]
+    for tmpl in templates:
+        template_steps = tmpl["steps"]
+        matched_on = []
+        search_start_index = 0
 
-                # check for matches of this decomposition inside template steps
-                for i in range(len(steps) - e_len + 1):
-                    if steps[i:i+e_len] == e:
-                        match_positions.setdefault(name, []).append(i)
+        for equiv_sequences_list in input_decomps:
+            found_matching_sequence = False
+
+            for seq in equiv_sequences_list:
+                seq_len = len(seq)
+
+                for starting_point in range(search_start_index, len(template_steps) - seq_len + 1):
+                    if template_steps[starting_point : starting_point + seq_len] == seq:
+                        matched_template_seq = tuple(range(starting_point, starting_point+seq_len))
+                        matched_on.append(matched_template_seq)
+                        search_start_index = matched_template_seq[-1] + 1
+                        found_matching_sequence = True
                         break
 
-        step_matches.append(match_positions)
+                if found_matching_sequence:
+                    break
 
-    if not step_matches:
-        return [], {}
-
-    # Templates that matched the FIRST interval (string-wise lowest interval)
-    candidate_templates = set(step_matches[0].keys())
-
-    matched_templates = []
-
-    for tmpl in candidate_templates:
-        valid = True
-        possible_positions = step_matches[0][tmpl]
-
-        # Filter to enforce strictly increasing match positions up the template
-        for idx in range(1, len(intervals)):
-            next_matches = step_matches[idx].get(tmpl)
-            if not next_matches:
-                valid = False
+            if not found_matching_sequence:
                 break
 
-            new_positions = []
-            for prev in possible_positions:
-                for nxt in next_matches:
-                    if nxt > prev:
-                        new_positions.append(nxt)
+        if len(matched_on) == len(input_decomps):
+            matched_templates.append((tmpl, matched_on))
+                
 
-            if not new_positions:
-                valid = False
-                break
-
-            possible_positions = new_positions
-
-        if valid:
-            # First match index for interval[0] = anchor step
-            first_matched_step[tmpl] = min(step_matches[0][tmpl])
-            matched_templates.append(tmpl)
-
-    return matched_templates, first_matched_step
+    return(matched_templates)
 
 
 
 
 def select_template(matched_templates, last_index=None):
-
     if not matched_templates:
         return None, None
+
+    if len(matched_templates) == 1:
+        return matched_templates[0], 0
 
     while True:
         roll = randint(0, len(matched_templates) - 1)
@@ -114,39 +92,29 @@ def select_template(matched_templates, last_index=None):
     return matched_templates[roll], roll
 
 
-
 def reroll(matched_templates, last_index):
     return select_template(matched_templates, last_index)
 
 
 
-def get_selected_template (name, templates):
-    for t in templates: 
-        if t["name"] == name:
-            return t
-
-
-def build_chord(template, first_matched_step, first_entered_note):
-    steps = template["steps"]
-    num_voices = len(steps) + 1
-
+def build_chord(template_steps, matched_on, anchor_note):
+    num_voices = len(template_steps) +1
     abs_pitches = [None] * num_voices
 
-    anchor_index = first_matched_step
-    anchor_pitch = first_entered_note
+    first_num_in_first_tuple = matched_on[0][0]
+    anchor_index = first_num_in_first_tuple - 1
 
-    # Place the anchor pitch into the correct template voice
-    abs_pitches[anchor_index] = anchor_pitch
+    abs_pitches[anchor_index] = anchor_note
 
     # Build downward (toward template voice 0)
     for i in range(anchor_index - 1, -1, -1):
-        abs_pitches[i] = abs_pitches[i + 1] - steps[i]
+        abs_pitches[i] = abs_pitches[i + 1] - template_steps[i]
 
     # Build upward (toward final template voice)
-    for i in range(anchor_index, len(steps)):
-        abs_pitches[i + 1] = abs_pitches[i] + steps[i]
+    for i in range(anchor_index, len(template_steps)):
+        abs_pitches[i + 1] = abs_pitches[i] + template_steps[i]
 
-    return sorted(abs_pitches)
+    return abs_pitches
 
 
 
@@ -154,9 +122,6 @@ def remove_template(matched_templates, index):
     matched_templates.pop(index)
 
 
-
-#def get_input_abs_pitches(chord):
-   # return [n.absolute_pitch() for n in chord.get_notes()]
 
 def map_to_fretboard(abs_pitches, tuning):
     HIGHEST_FRET = 17
