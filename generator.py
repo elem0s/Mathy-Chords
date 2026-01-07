@@ -1,4 +1,5 @@
 from random import randint
+from itertools import product
 
 ALLOWED_STEPS = [2, 3, 4, 5, 7, 12, 14]
 
@@ -9,6 +10,7 @@ def get_input_intervals(chord):
 
 def get_input_abs_pitches(chord):
     return [n.absolute_pitch() for n in chord.get_notes()]
+
 
 
 def decompose(interval):
@@ -32,48 +34,45 @@ def decompose(interval):
     return equivalents
 
 
+
 def find_templates(chord, templates):
 
-    matched_templates = [] 
+    matched_templates = []
 
     input_intervals = get_input_intervals(chord)
-    
-    input_decomps = []
-    for interval in input_intervals:
-        input_decomps.append(decompose(interval))
+    if not input_intervals:
+        return matched_templates
 
+    # Decompose each interval
+    decomps_per_interval = [decompose(iv) for iv in input_intervals]
+
+    # Build all full equivalent step strings
+    full_step_strings = [
+        [step for seq in combo for step in seq]
+        for combo in product(*decomps_per_interval)
+    ]
 
     for tmpl in templates:
-        template_steps = tmpl["steps"]
-        matched_on = []
-        search_start_index = 0
+        steps = tmpl["steps"]
+        tmpl_len = len(steps)
 
-        for equiv_sequences_list in input_decomps:
-            found_matching_sequence = False
+        for seq in full_step_strings:
+            L = len(seq)
+            if L >= tmpl_len:
+                continue
 
-            for seq in equiv_sequences_list:
-                seq_len = len(seq)
-
-                for starting_point in range(search_start_index, len(template_steps) - seq_len + 1):
-                    if template_steps[starting_point : starting_point + seq_len] == seq:
-                        matched_template_seq = tuple(range(starting_point, starting_point+seq_len))
-                        matched_on.append(matched_template_seq)
-                        search_start_index = matched_template_seq[-1] + 1
-                        found_matching_sequence = True
-                        break
-
-                if found_matching_sequence:
+            # search contiguously, skipping anchor index 0
+            for start in range(1, tmpl_len - L + 1):
+                if steps[start:start + L] == seq:
+                    matched_on = tuple(range(start, start + L))
+                    matched_templates.append((tmpl, matched_on))
                     break
+            else:
+                continue
+            break
+        
 
-            if not found_matching_sequence:
-                break
-
-        if len(matched_on) == len(input_decomps):
-            matched_templates.append((tmpl, matched_on))
-                
-
-    return(matched_templates)
-
+    return matched_templates
 
 
 
@@ -92,33 +91,29 @@ def select_template(matched_templates, last_index=None):
     return matched_templates[roll], roll
 
 
-def reroll(matched_templates, last_index):
-    return select_template(matched_templates, last_index)
-
-
 
 def build_chord(template_steps, matched_on, anchor_note):
-    num_voices = len(template_steps) +1
-    abs_pitches = [None] * num_voices
+    num_voices = len(template_steps)
+    abs_pitches = [0] * num_voices
 
-    first_num_in_first_tuple = matched_on[0][0]
-    anchor_index = first_num_in_first_tuple - 1
+    anchor_index = matched_on[0] - 1
 
     abs_pitches[anchor_index] = anchor_note
 
-    # Build downward (toward template voice 0)
+    # Build downward from anchor
     for i in range(anchor_index - 1, -1, -1):
-        abs_pitches[i] = abs_pitches[i + 1] - template_steps[i]
+        abs_pitches[i] = abs_pitches[i + 1] - template_steps[i + 1]
 
-    # Build upward (toward final template voice)
-    for i in range(anchor_index, len(template_steps)):
-        abs_pitches[i + 1] = abs_pitches[i] + template_steps[i]
+    # Build upward from anchor
+    for i in range(anchor_index + 1, len(template_steps)):
+        abs_pitches[i] = abs_pitches[i - 1] + template_steps[i]
 
     return abs_pitches
 
 
 
 def remove_template(matched_templates, index):
+    print(f"Couldn't map to fretboard")
     matched_templates.pop(index)
 
 
@@ -134,17 +129,11 @@ def map_to_fretboard(abs_pitches, tuning):
     ]
 
     shapes = set()
-    pitch_classes = {p % 12 for p in abs_pitches}
+    
 
     def backtrack(i, used_strings, current_shape, lo, hi):
         if i == len(abs_pitches):
-            # open-string class doubling
-            shape = current_shape[:]
-            for s in range(NUM_STRINGS):
-                if shape[s] == 'x':
-                    if fretboard[s][0] % 12 in pitch_classes:
-                        shape[s] = 0
-            shapes.add(tuple(shape))
+            shapes.add(tuple(current_shape))
             return
 
         target = abs_pitches[i]
@@ -191,3 +180,17 @@ def map_to_fretboard(abs_pitches, tuning):
     )
 
     return [list(shape) for shape in shapes]
+
+
+def select_shape (shapes, last_idx):
+    if not shapes:
+        return None, None
+    
+    if last_idx is None:
+        shape_index = 0
+
+    else:
+        shape_index = (last_idx + 1) % len(shapes)
+
+
+    return shapes[shape_index], shape_index

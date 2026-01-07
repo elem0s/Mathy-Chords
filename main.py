@@ -5,7 +5,7 @@ from utils import clear_screen
 from note import NoteNames
 from tuning import Tuning, String
 from chord import Chord
-from generator import find_template, get_input_intervals, decompose
+from generator import build_chord, find_templates, get_input_abs_pitches, get_input_intervals, decompose, map_to_fretboard, remove_template, select_shape, select_template
 
 DATA_PATH = "data/tunings.json"
 LAST_SELECTED_PATH = "data/last_selected.json"
@@ -246,32 +246,25 @@ def enter_chord(tuning):
     return Chord(frets, tuning)
 
 # ===============================
-# Suggestion Flow
+# Debug
 # ===============================
-'''
-def generate_chord_flow(input_chord, tuning):
+def debug(input_chord, matched_templates):
+
+    intervals = get_input_intervals(input_chord)
+    input_abs = get_input_abs_pitches(input_chord)
+    print(f'Input chord abs: {input_abs}')
+
+    print(f"\nInput chord's intervals: {intervals}\n")
+
+    print("Decompositions:")
+    for iv in intervals:
+        print(f" Interval {iv}: {decompose(iv)}")
+
+    print("\nFind_template output:")
+    for template, matched_on in matched_templates:
+        print(f'Matched w/ template: {template} \nMatched on: {matched_on}\n')
+
     
-    last = None
-
-    while True:
-        suggestion = generate_suggestion(input_chord, tuning, last)
-
-        if suggestion is None:
-            print("\nNo suggestions available.\n")
-            input("Press Enter to return to the main menu...")
-            return
-
-        last = suggestion
-
-        print("\n=== Suggested Voicing ===\n")
-        suggestion.print_diagram()
-
-        print("\nPress Enter to Reroll")
-        print("Enter 'm' for Main Menu")
-
-        choice = input("> ").strip().lower()
-        if choice == "m":
-            return'''
 
 
 # ===============================
@@ -330,7 +323,9 @@ def main():
                 current_tuning, idx = selected
                 save_last_selected(idx, current_tuning.capo)
             continue
-
+#=================================================================
+#              Chord Loop 
+#=================================================================
         # Enter chord
         if choice == "2":
             if not current_tuning:
@@ -338,36 +333,83 @@ def main():
                 input("Press Enter...")
                 continue
 
-            chord = enter_chord(current_tuning)
-            if chord is None:
+            input_chord = enter_chord(current_tuning)
+            if input_chord is None:
                 continue
 
             clear_screen()
             print("Input Chord:")
-            chord.print_diagram()
-    # ===============================
-    # Testing Block
-    # ===============================
-            #get_intervals output
-            intervals = get_input_intervals(chord)
-            print(f"Input chord's intervals: {intervals}\n\n")
+            input_chord.print_diagram()
 
-            #decompose output
-            print("Decompositions:")
-            for iv in intervals:
-                print(f" Interval {iv}: {decompose(iv)}")
             
-            #find_template output
+
+           
             with open("data/templates.json") as f:
                 templates = json.load(f)["templates"]
 
-            qualified = find_template(chord, templates)
-            print("\nQualified templates:")
-            for q in qualified:
-                print("-", q)
+            matched_templates = find_templates(input_chord, templates)
+            
+            
 
-            input("Press Enter...")
+            last_index = None
 
+            while True:
+
+                if not matched_templates:
+                    print("No matching templates found.")
+                    input("Press Enter")
+                    break
+                
+                clear_screen()
+                
+                
+
+                selected, selected_idx = select_template(matched_templates, last_index)
+                selected_template, selected_matched_on = selected
+                last_index = selected_idx
+
+
+                print(f'Selected: {selected_template['name']} (IDX: {selected_idx})')
+                
+
+                
+
+                anchor_note = input_chord.get_first_input_note().absolute_pitch()
+
+                output_chord_abs = build_chord(selected_template['steps'], selected_matched_on, anchor_note)
+                
+                print(f"Generated Chord's abs pitches: {output_chord_abs}")
+                
+                
+                # --- FINGERINGS GENERATION ---
+                shapes = map_to_fretboard(output_chord_abs, current_tuning)
+                
+
+                if not shapes:
+                    remove_template(matched_templates, selected_idx)
+                    last_index = None
+                    continue
+
+                last_shape_idx = None
+
+                while True:
+                    shape, last_shape_idx = select_shape(shapes, last_shape_idx)
+
+                    output_chord = Chord(frets = list(shape), tuning = current_tuning, name = selected_template["name"])
+                    output_chord.print_diagram()
+
+                    button = input("Enter = reroll | a = alt fingering | m = main menu").strip()
+
+                    if button == "a":
+                        continue
+                    if button == "m":
+                        last_index = None
+                        exit_to_main = True
+                        break
+                    else:
+                        break
+                if 'exit_to_main' in locals():
+                    break
 
 if __name__ == "__main__":
     main()
