@@ -5,7 +5,7 @@ from utils import clear_screen
 from note import NoteNames
 from tuning import Tuning, String
 from chord import Chord
-from generator import build_chord, find_templates, get_input_abs_pitches, get_input_intervals, decompose, map_to_fretboard, remove_template, select_shape, select_template
+from generator import build_chord, find_templates, get_input_abs_pitches, get_input_intervals, decompose, map_to_fretboard, remove_template, select_template
 
 DATA_PATH = "data/tunings.json"
 LAST_SELECTED_PATH = "data/last_selected.json"
@@ -339,7 +339,7 @@ def main():
 
             clear_screen()
             print("Input Chord:")
-            input_chord.print_diagram()
+            print(input_chord.chord_diagram())
 
             
 
@@ -354,62 +354,55 @@ def main():
             last_index = None
 
             while True:
-
                 if not matched_templates:
                     print("No matching templates found.")
                     input("Press Enter")
                     break
-                
+
                 clear_screen()
-                
-                
 
                 selected, selected_idx = select_template(matched_templates, last_index)
                 selected_template, selected_matched_on = selected
                 last_index = selected_idx
 
-
-                print(f'Selected: {selected_template['name']} (IDX: {selected_idx})')
-                
-
-                
+                print(f"Selected: {selected_template['name']} (IDX: {selected_idx})")
 
                 anchor_note = input_chord.get_first_input_note().absolute_pitch()
+                output_chord_abs = build_chord(
+                    selected_template['steps'],
+                    selected_matched_on,
+                    anchor_note
+                )
 
-                output_chord_abs = build_chord(selected_template['steps'], selected_matched_on, anchor_note)
-                
-                print(f"Generated Chord's abs pitches: {output_chord_abs}")
-                
-                
-                # --- FINGERINGS GENERATION ---
+                input_abs = get_input_abs_pitches(input_chord)
+                print(f"Input abs: {input_abs} \nOutput abs: {output_chord_abs}\nNumber of matched templates:{len(matched_templates)}")
+
                 shapes = map_to_fretboard(output_chord_abs, current_tuning)
-                
 
                 if not shapes:
                     remove_template(matched_templates, selected_idx)
                     last_index = None
                     continue
+                
 
-                last_shape_idx = None
+                for shape in shapes:
+                    print(
+                        Chord(
+                        frets=list(shape),
+                        tuning=current_tuning
+                    ).chord_diagram())
+                    print("\n")
 
-                while True:
-                    shape, last_shape_idx = select_shape(shapes, last_shape_idx)
+                
+                print("Enter = next template | m = main menu")
+                cmd = input("> ").strip().lower()
 
-                    output_chord = Chord(frets = list(shape), tuning = current_tuning, name = selected_template["name"])
-                    output_chord.print_diagram()
-
-                    button = input("Enter = reroll | a = alt fingering | m = main menu").strip()
-
-                    if button == "a":
-                        continue
-                    if button == "m":
-                        last_index = None
-                        exit_to_main = True
-                        break
-                    else:
-                        break
-                if 'exit_to_main' in locals():
+                if cmd == "m":
+                    last_index = None
                     break
+                
+
+                    
 
 if __name__ == "__main__":
     main()

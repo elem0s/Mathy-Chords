@@ -1,6 +1,6 @@
 class NoteNames:
 
-    PREFER_SHARPS = True
+    PREFER_SHARPS = False
 
     SHARP_NAMES = [
         "C",
@@ -54,6 +54,15 @@ class NoteNames:
 
         # No match found
         raise KeyError(f"Invalid note name: {name}")
+    
+    @classmethod
+    def full_name(cls, value: int) -> str:
+        name = value % 12
+        octave = value // 12 - 1
+        if cls.PREFER_SHARPS:
+            return cls.SHARP_NAMES[name], octave
+        return cls.FLAT_NAMES[name], octave
+
 
 
 
@@ -66,12 +75,14 @@ class Note: # Represents a single musical note with pitch class and octave.
 
     def display_name(self) -> str: # Return musical name for this note.
         return NoteNames.get_name(self.value)
+    
 
     def absolute_pitch(self) -> int: # Return note's absolute pitch number.
         return self.octave * 12 + self.value
 
     def interval_to(self, other: "Note") -> int: # Return the interval in semitones from this note to another note.
         return (other.value - self.value) % 12
+    
 
     def __repr__(self) -> str: # Debug representation of the note, for example: Note(C#4)
         return f"Note({self.display_name()}{self.octave})"
