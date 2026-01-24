@@ -1,16 +1,16 @@
 import json
 import os
 
-from utils import clear_screen
+from utils import clear_screen, load_settings, set_prefer_sharps
 from note import NoteNames
 from tuning import Tuning, String
 from chord import Chord
 from generator import build_chord, find_templates, get_input_abs_pitches, get_input_intervals, decompose, map_to_fretboard, remove_template, select_template
 
 
-from PySide6.QtWidgets import QApplication, QLabel, QComboBox, QPushButton, QMessageBox, QStackedWidget, QListWidgetItem, QWidget, QListView, QVBoxLayout, QSpinBox, QLineEdit
+from PySide6.QtWidgets import QApplication, QLabel, QComboBox, QPushButton, QMessageBox, QStackedWidget, QListWidgetItem, QWidget, QListView, QVBoxLayout, QSpinBox, QLineEdit, QCheckBox
 from PySide6.QtUiTools import QUiLoader
-from PySide6.QtCore import Qt, QFile, QSize, Signal
+from PySide6.QtCore import Qt, QFile, QSize, Signal, QSettings
 import sys
 
 
@@ -130,6 +130,12 @@ class Main:
         file.open(QFile.ReadOnly)
         self.add_tuning_ui = loader.load(file)
 
+         # load settings screen
+        file = QFile("ui_files/settings.ui")
+        file.open(QFile.ReadOnly)
+        self.settings_ui = loader.load(file)
+        self.load_settings_state()
+
         # stacked container
         self.stack = QStackedWidget()
 
@@ -139,6 +145,7 @@ class Main:
         self.stack.addWidget(self.output_ui)
         self.stack.addWidget(self.tuning_ui)
         self.stack.addWidget(self.add_tuning_ui)
+        self.stack.addWidget(self.settings_ui)
 
         self.stack.setCurrentWidget(self.input_ui)
         self.stack.show()
@@ -175,8 +182,11 @@ class Main:
 
 
         #Start menu buttons (global)
-        for ui in (self.input_ui, self.output_ui, self.tuning_ui, self.add_tuning_ui):
+        for ui in (self.input_ui, self.output_ui, self.tuning_ui, self.add_tuning_ui, self.settings_ui):
             ui.actionTuning.triggered.connect(self.show_tuning_menu)
+
+        for ui in (self.input_ui, self.output_ui, self.tuning_ui, self.add_tuning_ui, self.settings_ui):
+            ui.actionSettings.triggered.connect(self.show_settings)
 
         #Input Screen Buttons
         self.input_ui.roll_button.clicked.connect(lambda: self.input_roll(templates)) #use lambda when the method needs arguments
@@ -196,6 +206,8 @@ class Main:
         self.add_tuning_ui.add_btn.clicked.connect(self.add_btn_click)
         self.add_tuning_ui.cancel_btn.clicked.connect(self.cancel_btn_click)
         
+        #settings screen buttons
+        self.settings_ui.ok_btn.clicked.connect(self.return_to_input_ui)
 
 
         #Display the app windows
@@ -481,9 +493,35 @@ class Main:
         for combo in self.oct_combos:
             combo.setCurrentIndex(0)
 
+    def show_settings (self):
+        self.stack.setCurrentWidget(self.settings_ui)
 
+    # def prefer_sharps_checked (self):
+    #     if self.settings_ui.findChild(QCheckBox, "prefer_sharps").isChecked():
+    #         NoteNames.PREFER_SHARPS = True
+    #     else:
+    #         NoteNames.PREFER_SHARPS = False
+    
+    def load_settings_state(self):
+        settings = load_settings()
+        prefer = settings["prefer_sharps"]
 
+        set_prefer_sharps(prefer)
 
+        checkbox = self.settings_ui.findChild(QCheckBox, "prefer_sharps")
+
+        checkbox.blockSignals(True)
+        checkbox.setChecked(prefer)
+        checkbox.blockSignals(False)
+
+        checkbox.toggled.connect(self.prefer_sharps_toggled)
+
+    def prefer_sharps_toggled(self, checked: bool):
+        set_prefer_sharps(checked)
+        self.display_tuning()
+
+    def return_to_input_ui (self):
+                self.stack.setCurrentWidget(self.input_ui)
 
 
 
