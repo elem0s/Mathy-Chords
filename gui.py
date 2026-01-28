@@ -6,6 +6,7 @@ from note import NoteNames
 from tuning import Tuning, String
 from chord import Chord
 from generator import build_chord, find_templates, get_input_abs_pitches, get_input_intervals, decompose, map_to_fretboard, remove_template, select_template
+from audio import audio
 
 
 from PySide6.QtWidgets import QApplication, QLabel, QComboBox, QPushButton, QMessageBox, QStackedWidget, QListWidgetItem, QWidget, QListView, QVBoxLayout, QSpinBox, QLineEdit, QCheckBox
@@ -154,6 +155,8 @@ class Main:
         self.tunings = load_tunings()
         self.current_tuning = None
         self.last_tuning, self.last_capo = load_last_selected()
+        self.output_chord_abs = None
+
 
         # --- Capo spinbox setup ---
         self.tuning_ui.capo_spinbox.setRange(0, 12)
@@ -287,9 +290,9 @@ class Main:
             self.last_index = selected_idx
            
             anchor_note = self.input_chord.get_first_input_note().absolute_pitch()
-            output_chord_abs = build_chord(selected_template['steps'], selected_matched_on, anchor_note)
+            self.output_chord_abs = build_chord(selected_template['steps'], selected_matched_on, anchor_note)
             
-            shapes = map_to_fretboard(output_chord_abs, self.current_tuning)
+            shapes = map_to_fretboard(self.output_chord_abs, self.current_tuning)
                     
             if not shapes:
                 remove_template(self.matched_templates, selected_idx)
@@ -299,7 +302,7 @@ class Main:
             output_diagrams = "\n\n\n\n".join(Chord(frets=list(shape), tuning=self.current_tuning).chord_diagram() for shape in shapes)
             
             output_note_names = []
-            for n in output_chord_abs:
+            for n in self.output_chord_abs:
                 name, octave = NoteNames.full_name(n)
                 output_note_names.append(f"{name}{octave}")
 
@@ -308,6 +311,7 @@ class Main:
             self.output_ui.note_names_d.setText(", ".join(output_note_names))
             self.output_ui.chord_diagram_label_d.setText(f'\n{output_diagrams}\n\n')
 
+            self.play_chord_audio()
             #Debug
            # input_abs = get_input_abs_pitches(self.input_chord)
            # print(f'\nInput abs: {input_abs} \nOutput abs: {output_chord_abs}\nNumber of matched templates:{len(self.matched_templates)}')
@@ -321,6 +325,12 @@ class Main:
                 "No Matches",
                 "No matching templates could be mapped to the fretboard."
             )
+
+    def play_chord_audio (self,):
+        if not self.output_chord_abs:
+            return
+        audio.play_audio(self.output_chord_abs)
+
             
     def reset_state(self):
         self.input_chord = None
@@ -522,6 +532,8 @@ class Main:
 
     def return_to_input_ui (self):
                 self.stack.setCurrentWidget(self.input_ui)
+
+
 
 
 
