@@ -1,0 +1,7 @@
+.venv/
+__pycache__/
+*.py[cod]
+
+# Third-party audio dependencies
+fluidsynth-bin/
+data/arachno.sf2

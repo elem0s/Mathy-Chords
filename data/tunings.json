@@ -1,0 +1,78 @@
+[
+    {
+        "name": "Drop C",
+        "open_values": [
+            0,
+            7,
+            0,
+            5,
+            9,
+            2
+        ],
+        "open_octaves": [
+            2,
+            2,
+            3,
+            3,
+            3,
+            4
+        ]
+    },
+    {
+        "name": "Rakuen",
+        "open_values": [
+            5,
+            9,
+            2,
+            7,
+            0,
+            4
+        ],
+        "open_octaves": [
+            2,
+            2,
+            3,
+            3,
+            4,
+            4
+        ]
+    },
+    {
+        "name": "Eb Standard",
+        "open_values": [
+            3,
+            8,
+            1,
+            6,
+            10,
+            3
+        ],
+        "open_octaves": [
+            2,
+            2,
+            3,
+            3,
+            3,
+            4
+        ]
+    },
+    {
+        "name": "Drop A",
+        "open_values": [
+            9,
+            4,
+            9,
+            2,
+            6,
+            11
+        ],
+        "open_octaves": [
+            1,
+            2,
+            2,
+            3,
+            3,
+            3
+        ]
+    }
+]

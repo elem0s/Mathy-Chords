@@ -1,0 +1,99 @@
+{
+  "templates": [
+
+    { "name": "Stacked Fifths (3)", "steps": [0,7,7] },
+    { "name": "Stacked Fifths (4)", "steps": [0,7,7,7] },
+    { "name": "Stacked Fifths (5)", "steps": [0,7,7,7,7] },
+    { "name": "Stacked Fifths (6)", "steps": [0,7,7,7,7,7] },
+    { "name": "Stacked Fifths Wide (4)", "steps": [0,7,12,7] },
+    { "name": "Stacked Fifths Wide (5)", "steps": [0,7,12,7,7] },
+
+    { "name": "Quartal Stack (3)", "steps": [0,5,5] },
+    { "name": "Quartal Stack (4)", "steps": [0,5,5,5] },
+    { "name": "Quartal Stack (5)", "steps": [0,5,5,5,5] },
+    { "name": "Quartal Stack (6)", "steps": [0,5,5,5,5,5] },
+    { "name": "Quartal Wide (4)", "steps": [0,5,12,5] },
+    { "name": "Quartal Wide (5)", "steps": [0,5,12,5,5] },
+
+    { "name": "Major Triad Spread", "steps": [0,4,3] },
+    { "name": "Major Triad Wide", "steps": [0,4,12,3] },
+    { "name": "Minor Triad Spread", "steps": [0,3,4] },
+    { "name": "Minor Triad Wide", "steps": [0,3,12,4] },
+
+    { "name": "Open Major Triad", "steps": [0,7,-3] },
+    { "name": "Open Major Triad Wide", "steps": [0,7,9,-3] },
+    { "name": "Open Minor Triad", "steps": [0,7,-4] },
+    { "name": "Open Minor Triad Wide", "steps": [0,7,8,-4] },
+
+    { "name": "Major Triad + Fifth", "steps": [0,4,3,7] },
+    { "name": "Major Triad + Fifth Wide", "steps": [0,4,12,3,7] },
+    { "name": "Minor Triad + Fifth", "steps": [0,3,4,7] },
+    { "name": "Minor Triad + Fifth Wide", "steps": [0,3,12,4,7] },
+
+    { "name": "Sus2 Shape", "steps": [0,2,5] },
+    { "name": "Sus2 Wide", "steps": [0,2,12,5] },
+    { "name": "Sus4 Shape", "steps": [0,5,2] },
+    { "name": "Sus4 Wide", "steps": [0,5,12,2] },
+
+    { "name": "Sus2 Add6", "steps": [0,2,5,4] },
+    { "name": "Sus2 Add6 Wide", "steps": [0,2,12,5,4] },
+    { "name": "Sus4 Add9", "steps": [0,5,2,7] },
+    { "name": "Sus4 Add9 Wide", "steps": [0,5,12,2,7] },
+
+    { "name": "Add9 Guitar Shape", "steps": [0,4,3,7] },
+    { "name": "Add9 Guitar Shape (5)", "steps": [0,4,3,7,7] },
+    { "name": "Add9 Wide", "steps": [0,4,7,3] },
+    { "name": "Add9 Wide (5)", "steps": [0,4,12,7,3] },
+
+    { "name": "Minor Add9 Guitar Shape", "steps": [0,3,4,7] },
+    { "name": "Minor Add9 Guitar Shape (5)", "steps": [0,3,4,7,7] },
+    { "name": "Minor Add9 Wide", "steps": [0,3,7,4] },
+    { "name": "Minor Add9 Wide (5)", "steps": [0,3,12,7,4] },
+
+    { "name": "Major 6 Shape", "steps": [0,4,5,2] },
+    { "name": "Major 6 Shape (5)", "steps": [0,4,5,2,5] },
+    { "name": "Minor 6 Shape", "steps": [0,3,6,2] },
+    { "name": "Minor 6 Shape (5)", "steps": [0,3,6,2,5] },
+
+    { "name": "6/9 Open", "steps": [0,4,5,2,5] },
+    { "name": "6/9 Open Wide", "steps": [0,4,12,5,2,5] },
+    { "name": "Minor 6/9 Open", "steps": [0,3,6,2,5] },
+    { "name": "Minor 6/9 Open Wide", "steps": [0,3,12,6,2,5] },
+
+    { "name": "Major 7 Drop", "steps": [0,4,3,4] },
+    { "name": "Major 7 Drop (5)", "steps": [0,4,3,4,5] },
+    { "name": "Minor 7 Drop", "steps": [0,3,4,3] },
+    { "name": "Minor 7 Drop (5)", "steps": [0,3,4,3,5] },
+
+    { "name": "Major 9 Spread", "steps": [0,4,3,7] },
+    { "name": "Major 9 Spread (5)", "steps": [0,4,3,7,7] },
+    { "name": "Minor 9 Spread", "steps": [0,3,4,7] },
+    { "name": "Minor 9 Spread (5)", "steps": [0,3,4,7,7] },
+
+    { "name": "Planing Fourths (4)", "steps": [0,5,5,2] },
+    { "name": "Planing Fourths (5)", "steps": [0,5,5,2,5] },
+    { "name": "Planing Fourths (6)", "steps": [0,5,5,2,5,5] },
+
+    { "name": "Sunken Cathedral Fifths (4)", "steps": [0,7,5,7] },
+    { "name": "Sunken Cathedral Fifths (5)", "steps": [0,7,5,7,5] },
+    { "name": "Sunken Cathedral Fifths (6)", "steps": [0,7,5,7,5,7] },
+
+    { "name": "Japanese Open Major", "steps": [0,7,5,-8] },
+    { "name": "Japanese Open Major (5)", "steps": [0,7,5,-8,7] },
+    { "name": "Japanese Open Minor", "steps": [0,7,4,-7] },
+    { "name": "Japanese Open Minor (5)", "steps": [0,7,4,-7,7] },
+
+    { "name": "toe Open Add9 Pedal", "steps": [0,2,7,5] },
+    { "name": "toe Open Add9 Pedal (5)", "steps": [0,2,7,5,7] },
+    { "name": "toe Wide Quartal Flow", "steps": [0,5,5,12] },
+    { "name": "toe Wide Quartal Flow (5)", "steps": [0,5,12,5,5] },
+
+    { "name": "Uchu Combini Floating Lydian", "steps": [0,7,4,6] },
+    { "name": "Uchu Combini Floating Lydian (5)", "steps": [0,7,4,6,7] },
+
+    { "name": "the cabs Angular Cluster", "steps": [0,3,1,8] },
+    { "name": "the cabs Angular Cluster (5)", "steps": [0,3,1,8,5] },
+    { "name": "the cabs Wide Angular", "steps": [0,3,12,1,8] }
+
+  ]
+}
