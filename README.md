@@ -9,9 +9,12 @@ MathyChords transforms partial chord fragments of two to four notes into full vo
 - analysing the interval relationships between input notes
 - decomposing those intervals into contiguous step sequences
 - matching the results against a library of harmonic templates
-- filtering unsuitable or overly dissonant results
-- selecting an appropriate template candidate
-- constructing a playable fingering within the selected tuning and fret-span constraints
+- Comparing the intervals of templates against the cartesian products of the steps in the input
+- selecting a potential template candidate
+- creating a new theoretical chord by inserting complementary notes around the input
+- checking whether a playable fingering within the selected tuning and fret-span constraints can be constructed
+- filtering unsuitable results
+- displaying all possible fingerings for the chord given the tuning set by the user
 
 The goal is not traditional chord identification. MathyChords is designed for creative expansion and exploration, producing modern, open, and harmonically rich voicings suited to styles such as math rock, post-rock, and contemporary jazz.
 
@@ -23,9 +26,14 @@ The goal is not traditional chord identification. MathyChords is designed for cr
 - Configurable guitar tunings
 - Adjustable fret-span fingering constraints
 - Tuning-aware fingering generation
-- Graphical chord input using PySide6
+- Graphical interface using PySide6
 - Optional audio playback using FluidSynth
 - Automated tests for the core generation logic
+
+- ## Future Features
+- Expand the template library
+- continue to refine fingering construction algorithm
+- replacing Fluidsynth with an original, light-weight audio handling engine
 
 ## Technology
 
@@ -36,6 +44,6 @@ The goal is not traditional chord identification. MathyChords is designed for cr
 
 ## Status
 
-MathyChords is a functional prototype under active development. The core chord-generation pipeline and graphical interface are working, while the selection and fingering algorithms continue to be refined.
+MathyChords is a functional prototype still under development. 
 
 
