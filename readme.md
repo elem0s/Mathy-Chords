@@ -28,7 +28,7 @@ The goal is not traditional chord identification. MathyChords is designed for cr
 * Tuning-aware fingering generation
 * Graphical interface using PySide6
 * Audio playback using FluidSynth
-* Automated tests for the core generation logic
+
 
 ## Requirements
 
