@@ -2,6 +2,10 @@
 
 A generative chord-voicing engine for guitar that expands small input note clusters into colourful, playable chord shapes using interval analysis, harmonic templates, and tuning-aware fingering algorithms.
 
+## Demo
+https://github.com/user-attachments/assets/865882e0-6751-4a62-a7c8-5881a93b0aee
+
+
 ## Overview
 
 MathyChords transforms partial chord fragments of two to four notes into full voicings by:
